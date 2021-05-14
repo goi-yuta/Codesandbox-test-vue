@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <HelloWorld />
+    <HelloWorld v-bind:play="play" v-on:reset="playToggle()" />
+    <button v-on:click="playToggle()">START</button>
   </div>
 </template>
 
@@ -9,9 +10,19 @@ import HelloWorld from "./components/HelloWorld";
 
 export default {
   name: "App",
+  data() {
+    return {
+      play: false,
+    };
+  },
   components: {
-    HelloWorld
-  }
+    HelloWorld,
+  },
+  methods: {
+    playToggle() {
+      this.play = !this.play;
+    },
+  },
 };
 </script>
 
