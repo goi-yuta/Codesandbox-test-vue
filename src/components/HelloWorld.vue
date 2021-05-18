@@ -15,7 +15,6 @@ export default {
     return {
       score: 0,
       lives: 3,
-      start: true,
       x: 0,
       y: 0,
       dx: 2,
@@ -28,7 +27,7 @@ export default {
       rightPressed: false,
       leftPressed: false,
       bricks: [],
-      brickRowCount: 3,
+      brickRowCount: 1,
       brickColumnCount: 5,
       brickWidth: 75,
       brickHeight: 20,
@@ -38,13 +37,33 @@ export default {
     };
   },
   watch: {
-    play: function (val) {
-      if (val) {
-        this.interval = this.draw();
+    play: function (newVal, oldVal) {
+      if (newVal) {
+        this.init();
+        this.draw();
+      }
+      if (oldVal) {
+        cancelAnimationFrame(this.interval);
       }
     },
   },
   methods: {
+    init() {
+      this.score = 0;
+      this.lives = 3;
+      this.bricks = [];
+      this.x = this.$el.width / 2;
+      this.y = this.$el.height / 2;
+      this.dx = 2;
+      this.dy = -2;
+      this.paddleX = (this.$el.width - this.paddleWidth) / 2;
+      for (let c = 0; c < this.brickColumnCount; c++) {
+        this.bricks[c] = [];
+        for (let r = 0; r < this.brickRowCount; r++) {
+          this.bricks[c][r] = { x: 0, y: 0, status: 1 };
+        }
+      }
+    },
     draw() {
       this.ctx.clearRect(0, 0, this.$el.width, this.$el.height);
       this.drawBall();
@@ -66,12 +85,8 @@ export default {
           this.dy = -this.dy;
         } else {
           this.lives--;
-          if (!this.lives) {
+          if (this.lives <= 0) {
             this.$emit("reset");
-            //cancelAnimationFrame(this.interval);
-            if (this.start) {
-              document.location.reload();
-            }
           } else {
             this.x = this.$el.width / 2;
             this.y = this.$el.height - 30;
@@ -91,7 +106,7 @@ export default {
       }
       this.x += this.dx;
       this.y += this.dy;
-      requestAnimationFrame(this.draw);
+      this.interval = requestAnimationFrame(this.draw);
     },
     drawBall() {
       this.ctx.beginPath();
@@ -186,18 +201,9 @@ export default {
   },
   mounted() {
     this.ctx = this.$el.getContext("2d");
-    this.x = this.$el.width / 2;
-    this.y = this.$el.height / 2;
-    this.paddleX = (this.$el.width - this.paddleWidth) / 2;
     document.addEventListener("keydown", this.keyDownHandler, false);
     document.addEventListener("keyup", this.keyUpHandler, false);
     document.addEventListener("mousemove", this.mouseMoveHandler, false);
-    for (let c = 0; c < this.brickColumnCount; c++) {
-      this.bricks[c] = [];
-      for (let r = 0; r < this.brickRowCount; r++) {
-        this.bricks[c][r] = { x: 0, y: 0, status: 1 };
-      }
-    }
   },
 };
 </script>
